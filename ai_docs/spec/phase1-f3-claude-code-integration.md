@@ -39,7 +39,8 @@ This layer provides **intent-based interfaces**:
 | Slash commands for common operations | Web UI for management |
 | Confirmation flows | Custom skill builder |
 | Completion hooks | Real-time monitoring dashboard |
-| Error handling and recovery | |
+| Error handling and recovery | Full-text search of documentation |
+| Mandatory change documentation | Automatic document generation |
 
 ---
 
@@ -412,13 +413,90 @@ exit 0  # Allow the operation
 | `pre-delete-network.sh` | Blocks deletion of protected networks |
 | `pre-firewall-rule.sh` | Blocks dangerous firewall rules (allow any-to-any) |
 | `post-change-log.sh` | Logs all configuration changes to audit trail |
+| `post-change-document.sh` | Reminds Claude to document changes (F3.8) |
 | `high-risk-notify.sh` | Logs high-risk operations separately |
 
 ---
 
-## 7. Error Handling and Recovery
+## 7. Change Documentation System
 
-### 7.1 Error Scenarios
+### 7.1 Mandatory Documentation Rule
+
+**Every infrastructure modification must be documented before the task is considered complete.**
+
+This rule applies to all operations that:
+- Create, update, or delete networks/VLANs
+- Create, update, or delete firewall rules
+- Change port configurations
+- Block or unblock clients
+- Any operation that returns a `rollback_id`
+
+### 7.2 Documentation Format
+
+Change documents are optimized for Claude Code consumption:
+
+**Naming Convention:** `{primary-resource}-{operation}.md`
+
+| Component | Description | Examples |
+|-----------|-------------|----------|
+| `primary-resource` | Main affected resource (slugified) | `living-room-tv`, `iot-media-vlan` |
+| `operation` | What was done | `isolation`, `creation`, `firewall-setup` |
+
+**Examples:**
+- `living-room-tv-isolation.md`
+- `iot-media-vlan-creation.md`
+- `camera-network-firewall-setup.md`
+
+### 7.3 Index Structure
+
+A queryable `index.yaml` provides multiple access paths:
+
+```yaml
+changes:
+  - id: living-room-tv-isolation
+    file: docs/living-room-tv-isolation.md
+    timestamp: "2025-01-09T15:30:00Z"
+    type: device_isolation
+    summary: Isolated TV to dedicated VLAN
+    resources: [...]
+    rollback_ids: [...]
+    tags: [isolation, iot, tv]
+
+by_resource:
+  devices:
+    living-room-tv: [living-room-tv-isolation]
+
+by_type:
+  device_isolation: [living-room-tv-isolation]
+
+by_tag:
+  isolation: [living-room-tv-isolation]
+```
+
+### 7.4 Documentation Workflow
+
+After any configuration change:
+
+1. **Create document** in `ai_docs/changes/docs/` using template
+2. **Update index** in `ai_docs/changes/index.yaml`
+3. **Confirm documentation** to user with file paths
+
+A `post-change-document.sh` hook reminds Claude to document after each configuration tool execution.
+
+### 7.5 Benefits for AI Operations
+
+| Benefit | How It Helps |
+|---------|--------------|
+| **Context for future operations** | "What was done to the TV before?" |
+| **Pattern reference** | Similar operations reference past examples |
+| **Rollback support** | Links changes to rollback IDs |
+| **Audit trail** | What was done, why, and how to undo |
+
+---
+
+## 8. Error Handling and Recovery
+
+### 8.1 Error Scenarios
 
 | Scenario | Handling |
 |----------|----------|
@@ -428,7 +506,7 @@ exit 0  # Allow the operation
 | User cancels | Abort, no changes made |
 | Hook blocks operation | Show block message, do not proceed |
 
-### 7.2 Recovery Suggestions
+### 8.2 Recovery Suggestions
 
 Skills document recovery suggestions for different error types:
 
@@ -439,7 +517,7 @@ Skills document recovery suggestions for different error types:
 | API error | Check controller status, review error message, retry |
 | Partial failure | Use `/infra-undo` to rollback, check UniFi UI |
 
-### 7.3 Audit Trail
+### 8.3 Audit Trail
 
 All changes are logged to `.claude/logs/` for:
 - Troubleshooting failed operations
@@ -571,10 +649,19 @@ End-to-end workflows in `tests/claude-code/scenarios/integration-flows.md` with 
 │   ├── pre-delete-network.sh     # Block protected network deletion
 │   ├── pre-firewall-rule.sh      # Block dangerous firewall rules
 │   ├── post-change-log.sh        # Log all configuration changes
+│   ├── post-change-document.sh   # Documentation reminder (F3.8)
 │   └── high-risk-notify.sh       # Alert on high-risk operations
 ├── logs/
 │   └── .gitkeep                  # Log directory
 └── settings.json                 # Hook configuration
+
+ai_docs/
+└── changes/                      # Change documentation (F3.8)
+    ├── index.yaml                # Queryable index of all changes
+    ├── templates/
+    │   └── change-doc.md         # Documentation template
+    └── docs/
+        └── [semantic-named].md   # Change documents
 
 tests/
 └── claude-code/
@@ -629,8 +716,10 @@ This feature depends on Feature 2's MCP tools:
 | F3.5 | Additional Skills | Guest network and security audit skills |
 | F3.6 | Testing Strategy | Hook tests, scenario tests, mock server |
 | F3.7 | Documentation | User guide, command reference, developer guide |
+| F3.8 | Change Documentation System | Mandatory documentation for all infrastructure changes |
 
 ---
 
-*Document Version: 1.1*
-*Last Updated: 2025-01-10*
+*Document Version: 1.2*
+*Last Updated: 2026-01-11*
+*Changelog: v1.2 - Added F3.8 Change Documentation System with mandatory documentation rule, semantic naming convention, and queryable index*

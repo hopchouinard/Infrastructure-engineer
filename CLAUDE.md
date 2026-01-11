@@ -176,6 +176,45 @@ SubAgents operate **read-only** and produce **Execution Plans** for user review.
 - Max 5 config changes per minute
 - All changes logged to audit trail
 
+## Mandatory Documentation Rule
+
+**CRITICAL:** Any operation that modifies, updates, deletes, or changes infrastructure is NOT complete until properly documented.
+
+### Applies To
+- Creating, updating, or deleting networks/VLANs
+- Creating, updating, or deleting firewall rules
+- Changing port configurations
+- Blocking or unblocking clients
+- Any operation that returns a `rollback_id`
+
+### Required Steps
+
+After every infrastructure change:
+
+1. **Create a change document** in `ai_docs/changes/docs/`
+   - Filename: `{primary-resource}-{operation}.md` (e.g., `living-room-tv-isolation.md`)
+   - Use template: `ai_docs/changes/templates/change-doc.md`
+
+2. **Update the index** in `ai_docs/changes/index.yaml`
+   - Add entry to `changes` list
+   - Update `by_resource`, `by_type`, `by_tag` sections
+
+3. **Report documentation completion** to user
+
+### What to Document
+
+| Include | Example |
+|---------|---------|
+| **Why** | "User wanted to isolate TV for security" |
+| **What** | Device MAC, VLAN ID, rule names |
+| **How** | Tools used, parameters, sequence |
+| **Pre/post state** | Before: Default VLAN, After: VLAN 40 |
+| **Rollback** | Rollback IDs and procedure |
+
+### Enforcement
+
+A post-change hook reminds you after each configuration tool. Do not mark any task complete until documentation is created.
+
 ## Technology Stack
 
 - **Python 3.11+**
