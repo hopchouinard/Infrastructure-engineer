@@ -180,40 +180,24 @@ SubAgents operate **read-only** and produce **Execution Plans** for user review.
 
 **CRITICAL:** Any operation that modifies, updates, deletes, or changes infrastructure is NOT complete until properly documented.
 
-### Applies To
-- Creating, updating, or deleting networks/VLANs
-- Creating, updating, or deleting firewall rules
-- Changing port configurations
-- Blocking or unblocking clients
-- Any operation that returns a `rollback_id`
+> **Authoritative Source:** See `.claude/skills/unifi-infra/SAFETY.md` for complete documentation requirements, typed block schema, and validation rules. The summary below is for quick reference only.
 
-### Required Steps
+### Quick Reference
 
-After every infrastructure change:
+**Applies to:** Any operation that returns a `rollback_id` (networks, firewall rules, port config, client blocking)
 
-1. **Create a change document** in `ai_docs/changes/docs/`
-   - Filename: `{primary-resource}-{operation}.md` (e.g., `living-room-tv-isolation.md`)
-   - Use template: `ai_docs/changes/templates/change-doc.md`
+**Required outputs:**
+1. Change document in `ai_docs/changes/docs/{resource}-{operation}.md`
+2. Index update in `ai_docs/changes/index.yaml`
 
-2. **Update the index** in `ai_docs/changes/index.yaml`
-   - Add entry to `changes` list
-   - Update `by_resource`, `by_type`, `by_tag` sections
+**Must answer three questions:**
+- What changed? (resources, operations)
+- Why did it change? (intent, reasoning)
+- How to undo it? (rollback IDs, procedure)
 
-3. **Report documentation completion** to user
+**Enforcement:** Post-change hook reminds after each configuration tool. Task is FAILED if documentation is not emitted.
 
-### What to Document
-
-| Include | Example |
-|---------|---------|
-| **Why** | "User wanted to isolate TV for security" |
-| **What** | Device MAC, VLAN ID, rule names |
-| **How** | Tools used, parameters, sequence |
-| **Pre/post state** | Before: Default VLAN, After: VLAN 40 |
-| **Rollback** | Rollback IDs and procedure |
-
-### Enforcement
-
-A post-change hook reminds you after each configuration tool. Do not mark any task complete until documentation is created.
+For full documentation contract including typed blocks, assumptions register, and validation requirements, see `SAFETY.md`.
 
 ## Technology Stack
 
