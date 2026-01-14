@@ -11,6 +11,7 @@ Provides a robust HTTP client for fetching documentation pages with:
 import asyncio
 import time
 from dataclasses import dataclass, field
+from typing import Protocol, runtime_checkable
 from urllib.parse import urlparse
 from urllib.robotparser import RobotFileParser
 
@@ -21,9 +22,49 @@ from .config import CrawlerConfig
 __all__ = [
     "FetchResult",
     "Fetcher",
+    "FetcherProtocol",
     "RateLimiter",
     "RobotsChecker",
 ]
+
+
+@runtime_checkable
+class FetcherProtocol(Protocol):
+    """Protocol defining the fetcher interface.
+
+    Both Fetcher (HTTP-based) and BrowserFetcher (Playwright-based)
+    implement this interface, allowing adapters to use either.
+    """
+
+    async def get(
+        self,
+        url: str,
+        *,
+        max_retries: int = 3,
+        retry_delay: float = 1.0,
+    ) -> "FetchResult":
+        """Fetch a URL and return the result."""
+        ...
+
+    async def get_text(
+        self,
+        url: str,
+        *,
+        max_retries: int = 3,
+        retry_delay: float = 1.0,
+    ) -> tuple[str, "FetchResult"]:
+        """Fetch a URL and return content as text."""
+        ...
+
+    async def head(
+        self,
+        url: str,
+        *,
+        max_retries: int = 3,
+        retry_delay: float = 1.0,
+    ) -> "FetchResult":
+        """Make a HEAD request to check URL."""
+        ...
 
 
 @dataclass

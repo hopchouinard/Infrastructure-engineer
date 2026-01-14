@@ -46,7 +46,7 @@ class HelpCenterConfig(BaseModel):
 
     enabled: bool = True
     base_url: HttpUrl = HttpUrl("https://help.ui.com/hc/en-us")
-    categories: list[str] = Field(default_factory=lambda: ["200320654-UniFi"])
+    categories: list[str] = Field(default_factory=lambda: ["6583256751383-UniFi"])
     max_depth: Annotated[int, Field(ge=1, le=10)] = 3
 
 
