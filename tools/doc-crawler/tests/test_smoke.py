@@ -119,8 +119,8 @@ def test_py_typed_marker_exists() -> None:
     """Test that py.typed marker exists for PEP 561."""
     from pathlib import Path
 
-    import doc_crawler
+    from doc_crawler import __file__ as doc_crawler_file
 
-    package_dir = Path(doc_crawler.__file__).parent
+    package_dir = Path(doc_crawler_file).parent
     py_typed = package_dir / "py.typed"
     assert py_typed.exists(), "py.typed marker missing for PEP 561 compliance"
