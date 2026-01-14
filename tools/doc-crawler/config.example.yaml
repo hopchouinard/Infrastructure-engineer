@@ -6,6 +6,8 @@ output_dir: "ai_docs/vendor/unifi"
 rate_limit:
   requests_per_second: 1.0
   respect_robots_txt: true
+  request_timeout: 30.0  # Timeout for HTTP requests (seconds)
+  robots_timeout: 10.0   # Timeout for robots.txt fetches (seconds)
 
 sources:
   help_center:

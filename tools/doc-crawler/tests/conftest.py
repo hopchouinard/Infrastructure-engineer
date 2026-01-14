@@ -1,8 +1,11 @@
 """Pytest fixtures for the UniFi Documentation Crawler tests."""
 
+from collections.abc import Generator
 from pathlib import Path
 
 import pytest
+import respx
+from respx import MockRouter
 
 
 @pytest.fixture
@@ -32,3 +35,16 @@ def output_dir(tmp_path: Path) -> Path:
     output = tmp_path / "output"
     output.mkdir()
     return output
+
+
+@pytest.fixture
+def respx_mock() -> Generator[MockRouter, None, None]:
+    """Provide a respx mock router for HTTP mocking.
+
+    Usage:
+        def test_fetch(respx_mock):
+            respx_mock.get("https://example.com").respond(status_code=200)
+            # ... test code ...
+    """
+    with respx.mock(assert_all_called=False) as mock:
+        yield mock

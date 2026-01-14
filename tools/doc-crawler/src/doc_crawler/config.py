@@ -33,10 +33,12 @@ class ConfigError(Exception):
 
 
 class RateLimitConfig(BaseModel):
-    """Rate limiting configuration."""
+    """Rate limiting and timeout configuration."""
 
     requests_per_second: Annotated[float, Field(gt=0, le=100)] = 1.0
     respect_robots_txt: bool = True
+    request_timeout: Annotated[float, Field(gt=0, le=300)] = 30.0
+    robots_timeout: Annotated[float, Field(gt=0, le=60)] = 10.0
 
 
 class HelpCenterConfig(BaseModel):
