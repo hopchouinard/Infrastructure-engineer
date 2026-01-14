@@ -1,0 +1,25 @@
+# UniFi Documentation Crawler Configuration
+# Copy to config.yaml and customize
+
+output_dir: "ai_docs/vendor/unifi"
+
+rate_limit:
+  requests_per_second: 1.0
+  respect_robots_txt: true
+
+sources:
+  help_center:
+    enabled: true
+    base_url: "https://help.ui.com/hc/en-us"
+    categories:
+      - "200320654-UniFi"
+    max_depth: 3
+
+  guides:
+    enabled: true
+    base_url: "https://dl.ubnt.com/guides/UniFi/"
+    file_types:
+      - ".pdf"
+
+state_file: "crawl-state.json"
+state_save_interval: 50
