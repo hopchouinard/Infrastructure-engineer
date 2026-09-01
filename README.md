@@ -1,3 +1,28 @@
+# VERDICT (2026-07-04): control-plane phases KILLED — doc-crawler survives
+
+> Decision D8 of the agent-ops write-loop design (Patchou-plan task 01,
+> 2026-07-01), executed by the governed-cutover plan (Patchou-plan task 11).
+> Banner landed by PKG-20b on 2026-09-01.
+>
+> - **F2-F4 (UniFi MCP server, Claude integration, safety subagents) and
+>   Phases 2-4: DEAD.** They specified a second MCP control plane over the
+>   same infrastructure agent-ops now governs — without registry floors,
+>   args-digest binding, or a durable audit trail. If a UniFi write path is
+>   ever needed, it becomes a `unifi.write.*` verb in the agent-ops registry
+>   (with the guardrail rules D8 absorbed: protect the management VLAN,
+>   refuse allow-all firewall rules, refuse deleting VLANs with active
+>   clients) — it does not resurrect here.
+> - **F1 (documentation crawler, `tools/doc-crawler/`): ALIVE**, as a
+>   standalone grounding tool. Real code, real tests, commits through
+>   `371fa40`. It has no control-plane role and no relationship to the
+>   agent-ops registry.
+> - The 5-tier safety model and RollbackManager ideas were absorbed into
+>   agent-ops's registry postures and rollback-recipe catalog notes (D8).
+>
+> Do not implement F2-F4. New work on the crawler is fine.
+
+---
+
 # Homelab Infrastructure Engineer
 
 An AI-powered system for managing homelab infrastructure through natural language, built on Claude Code and the Model Context Protocol (MCP).
